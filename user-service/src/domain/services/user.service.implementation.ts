@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ResultCode } from 'src/constants/result.code';
-import { ExceptionHandler } from 'src/exception/exception.handler';
-import { UserRepository } from 'src/infrastructure/repository/user.repository';
-import { CheckStringUtils } from 'src/utils/check.string.utils';
-import { JwtUtils } from 'src/utils/jwt.utils';
-import { logger } from 'src/utils/logger';
-import { PasswordUtils } from 'src/utils/password.utils';
+import { AuthtenticationException } from 'src/common/exception/auth.exception';
+import { CommonException } from 'src/common/exception/common.exception';
+import { logger } from 'src/common/logger/logger';
+import { ResultCode } from 'src/common/result.enum';
+import { UserRepository } from 'src/infrastructure/user.repository.implementation';
 import { v4 } from 'uuid';
 import { UserServiceDto } from '../dto/user.service.dto';
 import { License } from '../entity/license.entity';
@@ -19,7 +17,8 @@ class UserService implements IUserService {
         private readonly jwtUtils: JwtUtils,
         private readonly passwordUtils: PasswordUtils,
         private readonly stringUtils: CheckStringUtils,
-        private readonly exception: ExceptionHandler,
+        private readonly authException: AuthtenticationException,
+        private readonly commonException: CommonException,
         private readonly userRepository: UserRepository
     ) {}
 
@@ -35,7 +34,7 @@ class UserService implements IUserService {
             password, 
             user.password
         ))) {
-            this.exception.error(
+            this.commonException.exception(
                 "AuthService's loginUser",
                 "Not matched password",
                 ResultCode.NOT_MATCHED_PASSWORD
@@ -53,7 +52,7 @@ class UserService implements IUserService {
         const userId: string = (await this.jwtUtils.verify(context.userId)).data;
 
         if(!userId) {
-            this.exception.authenticationError("AuthService's logoutUser");
+            this.authException.exception("AuthService's logoutUser");
         }
     
         logger.info("AuthService's logoutUser: Successfully logout!");

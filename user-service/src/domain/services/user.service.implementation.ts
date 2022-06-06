@@ -14,9 +14,6 @@ import { IUserService } from './user.service';
 @Injectable()
 class UserService implements IUserService {
     constructor(
-        private readonly jwtUtils: JwtUtils,
-        private readonly passwordUtils: PasswordUtils,
-        private readonly stringUtils: CheckStringUtils,
         private readonly authException: AuthtenticationException,
         private readonly commonException: CommonException,
         private readonly userRepository: UserRepository
